@@ -1,2 +1,2 @@
 # Cyber-Defense-Toolkit
-Competitions write-ups with the tools used.
+Competition write-ups with the tools used.
