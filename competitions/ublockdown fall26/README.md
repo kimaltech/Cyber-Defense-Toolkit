@@ -50,19 +50,19 @@ The authentication logs showed frequent connection attempts originating from 192
 * sshd[1937516]: pam_unix(sshd:auth): check pass; user unknown
 * sshd[1937516]: Failed password for invalid user Blake from 192.168.10.8 port 46402
 
-# 1. Initial Mistake & Containment
-Operating under the assumption that "Blake" was an active Red Team credential attack from 192.168.10.8, I deleted the user along with otehr unknown users.
+## 1. Initial Mistake & Containment
+Operating under the assumption that "Blake" was an active Red Team credential attack from 192.168.10.8, I deleted the user along with other unknown users.
 
 This stopped the brute-force alerts, but the scoreboard immediately flagged SSH as offline with critical round failures.
 
-# 2. Re-Identifying Scoring Criteria & Restoring Blake
+## 2. Re-Identifying Scoring Criteria & Restoring Blake
 Navigating to the scoring engine dashboard (engine.ubnetdef.org/details) revealed the actual check parameters:
 
 ![Scoring Dashboard](images/handshake%20failed.png)
 
 The account was not an adversary—it was the automated scoring probe.
 
-# Restoring Scoring Engine Access
+### Restoring Scoring Engine Access
 
 The user was recreated with a proper shell and the expected competition credentials:
 
@@ -86,7 +86,7 @@ ssh -o PreferredAuthentications=password Blake@localhost whoami
 ```
 
 ## 3. Account Hardening & Least Privelege Configuration
-Because the scoring bot shared a known default password with whoami priveleges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
+Because the scoring bot shared a known default password with whoami privileges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
 
 ```bash
 # Strip administrative privileges
@@ -133,20 +133,13 @@ sudo journalctl -u ssh -f
 ```
 ![Successful Log](images/Blake%20accepted.png)
 
-# Enforcing Rule Persistance
-To ensure rules survived reboots or network resets, iptables-persistent was installed and saved:
-
-```bash
-sudo apt-get install -y iptables-persistent
-sudo netfilter-persistent save
-```
 Subsequent inspection verified packet flow matching the ~25-second scoring intervals
 
 ## 5. Desktop Pop-Up Remediation & Backdoor Neutralization
 During the defense phase, a distraction UI labeled "EMPLOYMENT / JOB APPLICATION" spawned repeatedly across the graphical session.
 ![Pop-Up](images/Job%20app.png)
 
-# Process Hunting
+### Process Hunting
 Inspecting running processes uncovered a backdoor listener bound to all network interfaces on port 8765:
 
 ```bash
@@ -160,10 +153,10 @@ sysadmin 4088705 0.0 0.1 107988 6836 ? Ss Oct21 0:52 /usr/bin/python3 /usr/local
 ```
 ![Process Hunting](images/Listener%20process.png)
 
-# Remediation & Elimination
+### Remediation & Elimination
 
 ```bash
-# 1. Terminated rogue backdoor listner:
+# 1. Terminated rogue backdoor listener:
 sudo kill -9 4088705
 sudo rm -f /usr/local/bin/notify
 
@@ -175,6 +168,6 @@ find /home/sysadmin /tmp /opt -iname "*employment*" -o -iname "*job*" -delete 2>
 ```
 
 ## Key Takeaways
-* **Validate Engine Traffic Before Deprovisioning:** Verifying traffic patterns and scoring engine documentation before deleting unrecognizing accounts or disabling authentication mechanisms
+* **Validate Engine Traffic Before Deprovisioning:** Verifying traffic patterns and scoring engine documentation before deleting unrecognized accounts or disabling authentication mechanisms
 * **Implement Network Whitelisting Early:** Locking port access directly to known engine subnets via iptables mitigates external brute-force vectors while keeping uptime green.
 * **Constrain Engine Credentials:** Service accounts required by automated scoring bots should have restricted sudo, no cron privieges, and read-only home directories to avoid weaponization.
