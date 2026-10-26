@@ -23,6 +23,7 @@ I then deleted unknown users from the machine after viewing the large list of us
 ```bash
 sudo deluser <username>
 ```
+![Figure 1: Unknown Users](images/rouge accounts.jpeg)
 
 ---
 
@@ -60,17 +61,7 @@ This stopped the brute-force alerts, but the scoreboard immediately flagged SSH 
 # 2. Re-Identifying Scoring Criteria & Restoring Blake
 Navigating to the scoring engine dashboard (engine.ubnetdef.org/details) revealed the actual check parameters:
 
-Service: Ubuntu2: SSH
-
-Target Command: whoami
-
-Expected Output: Blake
-
-Target User: Blake
-
-Password: Changeme2026!
-
-Engine Error: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none password], no supported methods remain
+![Figure 1: Scoring Dashboard](images/handshake failed.JPG)
 
 The account was not an adversary—it was the automated scoring probe.
 
@@ -98,7 +89,7 @@ ssh -o PreferredAuthentications=password Blake@localhost whoami
 ```
 
 ## 3. Account Hardening & Least Privelege Configuration
-Becase the scoring bot shared a known default password with whoami priveleges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
+Because the scoring bot shared a known default password with whoami priveleges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
 
 ```bash
 # Strip administrative privileges
@@ -136,12 +127,14 @@ sudo iptables -L INPUT -n -v --line-numbers
 # 6. Save active iptable rules to prevent them form wiping on reboot:
 sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
 ```
+![Figure 1: Firewall Rules](images/firewall hit counters.JPG)
 
 From this point I could watch the authentication log to ensure the scoring engine was connecting cleanly and make sure no other account was connecting:
 
 ```bash
 sudo journalctl -u ssh -f
 ```
+![Figure 1: Successful Log](images/Blake accepted.JPG)
 
 # Enforcing Rule Persistance
 To ensure rules survived reboots or network resets, iptables-persistent was installed and saved:
@@ -154,6 +147,7 @@ Subsequent inspection verified packet flow matching the ~25-second scoring inter
 
 ## 5. Desktop Pop-Up Remediation & Backdoor Neutralization
 During the defense phase, a distraction UI labeled "EMPLOYMENT / JOB APPLICATION" spawned repeatedly across the graphical session.
+![Figure 1: Pop-Up](images/Job app.JPG)
 
 # Process Hunting
 Inspecting running processes uncovered a backdoor listener bound to all network interfaces on port 8765:
@@ -167,6 +161,7 @@ Process table excerpt:
 ```plaintext
 sysadmin 4088705 0.0 0.1 107988 6836 ? Ss Oct21 0:52 /usr/bin/python3 /usr/local/bin/notify listen --host 0.0.0.0 --port 8765
 ```
+![Figure 1: Process Hunting](images/Listener process.JPG)
 
 # Remediation & Elimination
 
