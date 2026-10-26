@@ -14,9 +14,6 @@ passwd
 # Then I enabled the firewall and checked its status
 sudo ufw enable
 sudo ufw status
-sudo systemctl start firewalld
-sudo systemctl enable firewalld
-sudo firewall-cmd --state
 ```
 I then deleted unknown users from the machine after viewing the large list of users:
 
@@ -72,7 +69,7 @@ The user was recreated with a proper shell and the expected competition credenti
 ```bash
 # Recreate scoring account
 sudo useradd -m -s /bin/bash Blake
-echo 'Blake:Changeme2026!' | sudo chpasswd
+echo '<scoringpassword>' | sudo chpasswd
 sudo passwd -u Blake
 
 # Force priority SSH password authentication override
