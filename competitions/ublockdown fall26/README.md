@@ -98,7 +98,7 @@ ssh -o PreferredAuthentications=password Blake@localhost whoami
 ```
 
 ## 3. Account Hardening & Least Privelege Configuration
-Becase the scoring bot shared a known default password (Changeme2026!) eith whoami priveleges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
+Becase the scoring bot shared a known default password with whoami priveleges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
 
 ```bash
 # Strip administrative privileges
@@ -115,7 +115,7 @@ sudo rm -rf /home/Blake/.ssh
 ```
 
 ## 4. Defending Ports & Filtering Traffic with IPTables
-To ensure Red Team could not interact with port 22 or launch network-level brute-force attacks, iptables was configured to restrict traffic strictly to the verified scoring subnet (1922.168.10.0/24) and loopback:
+To ensure Red Team could not interact with port 22 or launch network-level brute-force attacks, iptables was configured to restrict traffic strictly to the verified scoring subnet (192.168.10.0/24) and loopback:
 
 ```bash
 # 1. Allow ICMP for Ubuntu2: PING checks
@@ -129,6 +129,18 @@ sudo iptables -I INPUT 3 -p tcp -s 127.0.0.1 --dport 22 -j ACCEPT
 
 # 4. Drop all other external SSH ingress
 sudo iptables -A INPUT -p tcp --dport 22 -j DROP
+
+# 5. Verified rules are active:
+sudo iptables -L INPUT -n -v --line-numbers
+
+# 6. Save active iptable rules to prevent them form wiping on reboot:
+sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
+```
+
+From this point I could watch the authentication log to ensure the scoring engine was connecting cleanly and make sure no other account was connecting:
+
+```bash
+sudo journalctl -u ssh -f
 ```
 
 # Enforcing Rule Persistance
