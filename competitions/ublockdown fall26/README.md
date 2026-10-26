@@ -134,7 +134,7 @@ From this point I could watch the authentication log to ensure the scoring engin
 ```bash
 sudo journalctl -u ssh -f
 ```
-![Successful Log](images/Blake accepted.png)
+![Successful Log](images/Blake%20accepted.png)
 
 # Enforcing Rule Persistance
 To ensure rules survived reboots or network resets, iptables-persistent was installed and saved:
