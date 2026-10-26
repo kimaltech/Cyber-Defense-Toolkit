@@ -5,7 +5,7 @@ During a collegiate cyber defense competition, our blue team experienced scoring
 
 ---
 ## Initial Hardening Procedures
-The first two things I did was reset the password and enable the firewall
+The first two things I did were reset the password and enable the firewall
 
 ```bash
 # I changed the password using the command:
@@ -46,9 +46,12 @@ sudo journalctl -u ssh -f
 
 ---
 The authentication logs showed frequent connection attempts originating from 192.168.10.8 attempting to authenticate as user "Blake":
-* sshd[1937516]: Invalid user Blake from 192.168.10.8 port 46402
-* sshd[1937516]: pam_unix(sshd:auth): check pass; user unknown
-* sshd[1937516]: Failed password for invalid user Blake from 192.168.10.8 port 46402
+
+```text
+sshd[1937516]: Invalid user Blake from 192.168.10.8 port 46402
+sshd[1937516]: pam_unix(sshd:auth): check pass; user unknown
+sshd[1937516]: Failed password for invalid user Blake from 192.168.10.8 port 46402
+```
 
 ## 1. Initial Mistake & Containment
 Operating under the assumption that "Blake" was an active Red Team credential attack from 192.168.10.8, I deleted the user along with other unknown users.
@@ -69,7 +72,7 @@ The user was recreated with a proper shell and the expected competition credenti
 ```bash
 # Recreate scoring account
 sudo useradd -m -s /bin/bash Blake
-echo '<scoringpassword>' | sudo chpasswd
+echo 'Blake:<scoring_password>' | sudo chpasswd
 sudo passwd -u Blake
 
 # Force priority SSH password authentication override
@@ -85,8 +88,8 @@ sudo systemctl restart ssh
 ssh -o PreferredAuthentications=password Blake@localhost whoami
 ```
 
-## 3. Account Hardening & Least Privelege Configuration
-Because the scoring bot shared a known default password with whoami privileges, the account posed an escalation vector for adversaries. The account was locked down to prevent privelege abuse:
+## 3. Account Hardening & Least Privilege Configuration
+Because the scoring bot shared a known default password with whoami privileges, the account posed an escalation vector for adversaries. The account was locked down to prevent privilege abuse:
 
 ```bash
 # Strip administrative privileges
@@ -121,7 +124,7 @@ sudo iptables -A INPUT -p tcp --dport 22 -j DROP
 # 5. Verified rules are active:
 sudo iptables -L INPUT -n -v --line-numbers
 
-# 6. Save active iptable rules to prevent them form wiping on reboot:
+# 6. Save active iptables rules to prevent them from wiping on reboot:
 sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
 ```
 ![Firewall Rules](images/firewall%20hit%20counters.png)
@@ -133,7 +136,7 @@ sudo journalctl -u ssh -f
 ```
 ![Successful Log](images/Blake%20accepted.png)
 
-Subsequent inspection verified packet flow matching the ~25-second scoring intervals
+Subsequent inspection verified packet flow matching the ~25-second scoring intervals.
 
 ## 5. Desktop Pop-Up Remediation & Backdoor Neutralization
 During the defense phase, a distraction UI labeled "EMPLOYMENT / JOB APPLICATION" spawned repeatedly across the graphical session.
@@ -168,6 +171,6 @@ find /home/sysadmin /tmp /opt -iname "*employment*" -o -iname "*job*" -delete 2>
 ```
 
 ## Key Takeaways
-* **Validate Engine Traffic Before Deprovisioning:** Verifying traffic patterns and scoring engine documentation before deleting unrecognized accounts or disabling authentication mechanisms
+* **Validate Engine Traffic Before Deprovisioning:** Always verify traffic patterns and scoring engine documentation before deleting unrecognized accounts or disabling authentication mechanisms.
 * **Implement Network Whitelisting Early:** Locking port access directly to known engine subnets via iptables mitigates external brute-force vectors while keeping uptime green.
-* **Constrain Engine Credentials:** Service accounts required by automated scoring bots should have restricted sudo, no cron privieges, and read-only home directories to avoid weaponization.
+* **Constrain Engine Credentials:** Service accounts required by automated scoring bots should have restricted sudo, no cron privileges, and read-only home directories to avoid weaponization.
