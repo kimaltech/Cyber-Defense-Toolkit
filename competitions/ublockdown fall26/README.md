@@ -23,7 +23,7 @@ I then deleted unknown users from the machine after viewing the large list of us
 ```bash
 sudo deluser <username>
 ```
-![Unknown Users](images/rouge accounts.png)
+![Unknown Users](images/rouge%20accounts.png)
 
 ---
 
@@ -61,7 +61,7 @@ This stopped the brute-force alerts, but the scoreboard immediately flagged SSH 
 # 2. Re-Identifying Scoring Criteria & Restoring Blake
 Navigating to the scoring engine dashboard (engine.ubnetdef.org/details) revealed the actual check parameters:
 
-![Scoring Dashboard](images/handshake failed.png)
+![Scoring Dashboard](images/handshake%20failed.png)
 
 The account was not an adversary—it was the automated scoring probe.
 
@@ -127,7 +127,7 @@ sudo iptables -L INPUT -n -v --line-numbers
 # 6. Save active iptable rules to prevent them form wiping on reboot:
 sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
 ```
-![Firewall Rules](images/firewall hit counters.png)
+![Firewall Rules](images/firewall%20hit%20counters.png)
 
 From this point I could watch the authentication log to ensure the scoring engine was connecting cleanly and make sure no other account was connecting:
 
@@ -147,7 +147,7 @@ Subsequent inspection verified packet flow matching the ~25-second scoring inter
 
 ## 5. Desktop Pop-Up Remediation & Backdoor Neutralization
 During the defense phase, a distraction UI labeled "EMPLOYMENT / JOB APPLICATION" spawned repeatedly across the graphical session.
-![Pop-Up](images/Job app.png)
+![Pop-Up](images/Job%20app.png)
 
 # Process Hunting
 Inspecting running processes uncovered a backdoor listener bound to all network interfaces on port 8765:
@@ -161,7 +161,7 @@ Process table excerpt:
 ```plaintext
 sysadmin 4088705 0.0 0.1 107988 6836 ? Ss Oct21 0:52 /usr/bin/python3 /usr/local/bin/notify listen --host 0.0.0.0 --port 8765
 ```
-![Process Hunting](images/Listener process.png)
+![Process Hunting](images/Listener%20process.png)
 
 # Remediation & Elimination
 
